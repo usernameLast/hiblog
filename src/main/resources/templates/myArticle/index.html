@@ -1,0 +1,221 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content bb-myArticle-content">
+        <div th:replace="myArticle/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right pull-left">
+            <div class="bb-myArticle-content-right-nav">
+                <ul class="list-inline">
+                    <li th:class="${choose_tab == 'myArticleIndex'?'active':''}"><a href="#" th:href="@{/myArticle}">全部</a></li>
+                    <li th:class="${choose_tab == 'myArticlePublic'?'active':''}"><a href="#" th:href="@{/myArticle(is_private=0,choose_tab='myArticlePublic')}">公开</a></li>
+                    <li th:class="${choose_tab == 'myArticlePrivate'?'active':''}"><a href="#" th:href="@{/myArticle(is_private=1,choose_tab='myArticlePrivate')}">私密</a></li>
+                    <li th:class="${choose_tab == 'myArticleDraft'?'active':''}"><a href="#" th:href="@{/myArticle(status=1,choose_tab='myArticleDraft')}">草稿</a></li>
+                </ul>
+            </div>
+
+            <form class="form-inline bb-myArticle-content-right-search" th:if="${choose_tab == 'myArticleIndex'}" action="" method="get">
+                <div class="form-group">
+                    <label>筛选: </label>
+                    <select class="form-control" name="year" id="choose_year" onchange="chooseYear()">
+                        <option value="0">不限</option>
+                        <option th:each="obj : ${yearList}" th:value="${obj}" th:text="${obj}"
+                                th:selected="${obj == year}">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="month" id="choose_month" onchange="chooseMonth()">
+                        <option value="0">不限</option>
+                        <option value="01" th:selected="${month == '01'}">01</option>
+                        <option value="02" th:selected="${month == '02'}">02</option>
+                        <option value="03" th:selected="${month == '03'}">03</option>
+                        <option value="04" th:selected="${month == '04'}">04</option>
+                        <option value="05" th:selected="${month == '05'}">05</option>
+                        <option value="06" th:selected="${month == '06'}">06</option>
+                        <option value="07" th:selected="${month == '07'}">07</option>
+                        <option value="08" th:selected="${month == '08'}">08</option>
+                        <option value="09" th:selected="${month == '09'}">09</option>
+                        <option value="10" th:selected="${month == '10'}">10</option>
+                        <option value="11" th:selected="${month == '11'}">11</option>
+                        <option value="12" th:selected="${month == '12'}">12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="type">
+                        <option value="0">不限类型</option>
+                        <option value="1">原创</option>
+                        <option value="2">转载</option>
+                        <option value="3">翻译</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="category_id">
+                        <option value="0">不限分类</option>
+                        <option th:each="obj: ${myCategoryList}" th:value="${obj.getId()}" th:text="${obj.getName()}"
+                                th:selected="${obj.getId() == category_id}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input class="form-control" name="title" th:value="${title}" type="text" placeholder="请输入标题关键词"/>
+                </div>
+                <button type="submit" class="btn btn-primary pull-right">搜 索</button>
+            </form>
+
+            <div class="bb-myArticle-content-content">
+
+                <!-- 无内容 -->
+                <div th:if="${articlePaging.get('totalNum') == 0}">
+                    <div th:replace="layout :: noContent"></div>
+                </div>
+
+                <!-- 有内容 -->
+                <div th:each="obj,index:${articlePaging.get('articleList')}">
+                    <p>
+                        <span class="label label-default" th:if="${obj.getIsPrivate() == 0 and obj.getStatus() == 1}">草稿</span>
+                        <span class="label label-danger" th:if="${obj.getIsPrivate() == 1}">私密</span>
+                        <span class="label label-primary" th:if="${obj.getIsPrivate() == 0 and obj.getStatus() == 2}">公开</span>
+                        <a href="#" th:href="@{/myArticle/write(id=${obj.getId()})}" th:text="${obj.getTitle()}"></a>
+                    </p>
+                    <div>
+                        <span class="label label-info" th:if="${obj.getType() == 1}">原创</span>
+                        <span class="label label-danger" th:if="${obj.getType() == 2}">转载</span>
+                        <span class="label label-default" th:if="${obj.getType() == 3}">翻译</span>
+                        <span th:text="${obj.getCreatedAt()}"></span>
+                        <span><i class="glyphicon glyphicon-eye-open"></i> <span th:text="${obj.getVisitedNum()}"></span></span>
+                        <span><i class="glyphicon glyphicon-comment"></i>  <span th:text="${obj.getCommentNum()}"></span></span>
+                        <ol class="breadcrumb pull-right">
+                            <li><a href="#" target="_blank" th:href="@{/user/article/{id}(id=${obj.getId()})}">查看</a></li>
+                            <li th:if="${index.index != 0}"><a href="javascript:;" th:onclick="'toTopArticle('+${obj.getId()}+')'">置顶</a></li>
+                            <li><a href="javascript:;" th:onclick="'deleteArticle('+${obj.getId()}+')'">删除</a></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+
+
+                <nav aria-label="Page navigation" th:if="${articlePaging.get('totalPage') > 1}">
+
+                    <ul class="pagination" >
+                        <li th:class="${articlePaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==1}?'':'goPage('+${articlePaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                        <li th:if="${articlePaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -3}" th:onclick="'goPage('+${articlePaging.get('nowPage')-3}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -2}" th:onclick="'goPage('+${articlePaging.get('nowPage')-2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -1}" th:onclick="'goPage('+${articlePaging.get('nowPage')-1}+')'">1</a></li>
+                        <li class="active"><a href="javascript:;" th:text="${articlePaging.get('nowPage')}" >1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+1 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +1}" th:onclick="'goPage('+${articlePaging.get('nowPage')+1}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+2 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +2}" th:onclick="'goPage('+${articlePaging.get('nowPage')+2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+3 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +3}" th:onclick="'goPage('+${articlePaging.get('nowPage')+3}+')'">1</a></li>
+                        <li th:class="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'':'goPage('+${articlePaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+                    </ul>
+
+
+                    <!--<ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>-->
+                </nav>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<script th:inline="javascript">
+    //博客置顶
+    function toTopArticle(id) {
+        var url = /*[[@{/myArticle/toTop}]]*/'';
+
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {id:id},
+            success: function (data) {
+                if(data.state == 0){
+                    window.location.reload();
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 保存博客
+    function deleteArticle(id) {
+        var url = /*[[@{/myArticle/delete}]]*/'';
+
+        if (confirm("确认删除?")){
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {id:id},
+                success: function (data) {
+
+                    if(data.state == 0){
+                        window.location.reload();
+                    }else{
+                        alert(data.msg);
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    }
+
+    function chooseYear() {
+        $('#choose_month').val('0');
+    }
+
+    function chooseMonth() {
+        if($('#choose_year').val() == 0){
+            $('#choose_month').val('0');
+            alert('请先选择年份');
+        }
+    }
+
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/myArticle}]]*/'';
+
+        var year = [[${year}]];
+        var month = [[${month}]];
+        var type = [[${type}]];
+        var is_private = [[${is_private}]];
+        var status = [[${status}]];
+        var category_id = [[${category_id}]];
+        var title = [[${title}]];
+        var choose_tab = [[${choose_tab}]];
+        url += '?&year='+year+'&month='+month+'&type='+type+'&is_private='+is_private+'&status='+status+'&category_id='+category_id+'&title='+title+'&choose_tab='+choose_tab+'&page='+page;
+        window.location.href = url;
+    }
+
+</script>
+
+</body>
+</html>

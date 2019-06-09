@@ -1,0 +1,281 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content bb-myArticle-content hb-myArticle-write">
+        <div th:replace="myArticle/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right pull-left">
+
+            <form class="form-horizontal" id="setArticleInfoForm">
+                <input type="hidden" id="articleId" name="id" th:value="${articleSetVo.getId()}" value="0">
+                <input type="hidden" id="article_status" name="status" th:value="${articleSetVo.getStatus()}" value="2">
+                <input type="hidden" id="article_content" name="content" value="">
+                <div class="form-group">
+                    <input type="text" name="title" th:value="${articleSetVo.getTitle()}" value="" class="form-control" placeholder="请输入标题">
+                </div>
+                <div class="form-group">
+                    <textarea id="TextArea1" class="ckeditor" th:utext="${articleSetVo.getContent()}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="pull-left title">博客标签 : </label>
+                    <div class="pull-left">
+                        <span class="hb-myArticle-write-labels">
+                            <span th:each="obj,index:${articleSetVo.getLabelsArr()}">
+                                <input class="hb-form-input" name="labelsArr[]" th:name="'labelsArr['+${index.index}+']'" th:value="${obj}" type="text" value="">
+                                <a href="javascript:;" onclick="removeLabels(this)">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                </a>
+                            </span>
+                        </span>
+                        <a href="javascript:;" onclick="addNewLabels()"><i class="glyphicon glyphicon-plus"></i> 添加标签</a>
+                        <span class="help-block">最多添加5个标签</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="pull-left title">个人分类 : </label>
+                    <div class="pull-left">
+                        <span class="hb-myArticle-write-category">
+
+                            <span th:each="obj,index:${articleSetVo.getCategoryArr()}">
+                                <input class="hb-form-input" name="articleCategoryList[]" th:name="'articleCategoryList['+${index.index}+']'" th:value="${obj}" type="text" value="">
+                                <a href="javascript:;" onclick="removeCategory(this)">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                </a>
+                            </span>
+
+                        </span>
+                        <a href="javascript:;" onclick="addNewCategory('')"><i class="glyphicon glyphicon-plus"></i> 添加新分类</a>
+                        <span class="help-block">最多添加5个分类</span>
+                        <div class="row hb-myArticle-write-category-choose">
+
+                            <div th:each="obj : ${articleSetVo.getMyCategoryList()}" class="checkbox col-md-6">
+                                <label>
+                                    <input type="checkbox" th:data="${obj.getName()}"><span th:text="${obj.getName()}"></span>
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="pull-left title">博客类型<span class="text-danger"> *</span> : </label>
+                    <div class="pull-left">
+                        <select name="type" class="form-control">
+                            <option value="0">请选择</option>
+                            <option value="1" th:selected="${articleSetVo.getType() == 1}">原创</option>
+                            <option value="2" th:selected="${articleSetVo.getType() == 2}">转载</option>
+                            <option value="3" th:selected="${articleSetVo.getType() == 3}">翻译</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="pull-left title">博客分类<span class="text-danger"> *</span> : </label>
+                    <div class="pull-left">
+                        <select name="categoryId" class="form-control">
+                            <option value="0">请选择</option>
+                            <option
+                                    th:each="obj:${articleSetVo.getCategoryList()}"
+                                    th:selected="${obj.getId() == articleSetVo.getCategoryId()}"
+                                    th:value="${obj.getId()}"
+                                    th:text="${obj.getName()}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        私密博客 <input name="isPrivate" value="1" th:checked="${articleSetVo.getIsPrivate() == 1}" type="checkbox">
+                    </label>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="button" onclick="setArticleInfo(2)">发布博客</button>
+                    <button class="btn btn-default" type="button" onclick="setArticleInfo(1)">保存草稿</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<script th:src="@{/js/ckeditor/ckeditor.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    
+    $(function () {
+        $('.hb-myArticle-write-labels').on('blur','input',function () {
+            var names = [];
+            var i = 0;
+            $('.hb-myArticle-write-labels input').each(function (index,item) {
+                var name = $(item).val().trim();
+                if(name == '' || $.inArray(name,names) > -1){
+                    // 删除
+                    removeLabels(item);
+                }else{
+                    names[index] = name;
+                    $(item).attr('name','labelsArr['+i+']')
+                    i++;
+                }
+            })
+        })
+
+        $('.hb-myArticle-write-category').on('blur','input',function () {
+            $('.hb-myArticle-write-category input').attr('disabled',true);
+            var names = [];
+            var i = 0;
+            $('.hb-myArticle-write-category input').each(function (index,item) {
+                var name = $(item).val().trim();
+                if(name == '' || $.inArray(name,names) > -1){
+                    // 删除
+                    removeCategory(item);
+                }else{
+                    names[index] = name;
+                    $(item).attr('name','articleCategoryList['+i+']')
+                    i++;
+                }
+            })
+            // 选择下面checkbox
+            $('.hb-myArticle-write-category-choose input').each(function (index,item) {
+                var name = $(item).attr('data')
+                if($.inArray(name,names) > -1){
+                    // 选中
+                    $(item).prop('checked',true);
+                }else{
+                    // 取消选中
+                    $(item).prop('checked',false);
+                }
+            })
+        })
+
+
+        $('.hb-myArticle-write-category-choose input').click(function () {
+            var name = $(this).attr('data');
+            // 添加
+            if($(this).is(':checked')){
+                addNewCategory(name);
+            }else{
+                // 删除
+                removeCategoryByName(name)
+            }
+        })
+
+
+        if($('.hb-myArticle-write-category span:last-of-type input').length == 0){
+            $('.hb-myArticle-write-category-choose input').prop('checked',false);
+        }else{
+            $('.hb-myArticle-write-category span:last-of-type input').blur();
+        }
+
+    })
+
+    // window.onbeforeunload = function () {
+    //     var warning = "确认退出?";
+    //     return warning;
+    // }
+
+    //CKEDITOR.replace('TextArea1');
+    var articleCkEditor = CKEDITOR.replace('TextArea1',{
+        filebrowserImageUploadUrl : /*[[@{/upload/ckeditor}]]*/''
+    });
+
+    // 保存博客
+    function setArticleInfo(status) {
+        var url = /*[[@{/myArticle/setArticleInfo}]]*/''
+
+        $('#article_status').val(status);
+        $('#article_content').val(articleCkEditor.getData());
+
+        var $disabledItem = $('#setArticleInfoForm input[disabled=disabled]');
+        $disabledItem.attr('disabled',false);
+        var data = $('#setArticleInfoForm').serialize();
+        $disabledItem.attr('disabled',true);
+
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: data,
+            success: function (data) {
+                if(data.state == 0){
+                    // 修改id的值
+                    $('#articleId').val(data.data.id);
+                }
+                alert(data.msg);
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 添加新标签
+    function addNewLabels() {
+        if($('.hb-myArticle-write-labels input').length >= 5){
+            alert('最多5个标签');
+            return;
+        }
+        var str = '<span>' +
+            '        <input class="hb-form-input" name="labelsArr[]" type="text" value="">' +
+            '        <a href="javascript:;" onclick="removeLabels(this)">' +
+            '            <i class="glyphicon glyphicon-trash"></i>' +
+            '         </a>' +
+            '       </span>'
+        $('.hb-myArticle-write-labels').append(str);
+        $('.hb-myArticle-write-labels span:last-of-type input').focus();
+    }
+
+    // 删除标签
+    function removeLabels(obj) {
+        $(obj).parent().remove();
+        $('.hb-myArticle-write-labels span:last-of-type input').blur();
+    }
+
+    // 添加新分类
+    function addNewCategory(value) {
+        if($('.hb-myArticle-write-category input').length >= 5){
+            alert('最多5个分类');
+            return;
+        }
+        var str = '<span>' +
+            '        <input class="hb-form-input" name="articleCategoryList[]" type="text" value="'+value+'">' +
+            '        <a href="javascript:;" onclick="removeCategory(this)">' +
+            '            <i class="glyphicon glyphicon-trash"></i>' +
+            '         </a>' +
+            '       </span>'
+        $('.hb-myArticle-write-category').append(str);
+        if(value == ''){
+            $('.hb-myArticle-write-category span:last-of-type input').focus();
+        }else{
+            $('.hb-myArticle-write-category span:last-of-type input').blur();
+        }
+    }
+
+    // 删除分类
+    function removeCategory(obj) {
+        $(obj).parent().remove();
+        if($('.hb-myArticle-write-category span:last-of-type input').length == 0){
+            $('.hb-myArticle-write-category-choose input').prop('checked',false);
+        }else{
+            $('.hb-myArticle-write-category span:last-of-type input').blur();
+        }
+    }
+    // 通过名字删除分类
+    function removeCategoryByName(name) {
+        $('.hb-myArticle-write-category input').each(function (index,item) {
+            if($(item).val() == name){
+                removeCategory(item)
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>

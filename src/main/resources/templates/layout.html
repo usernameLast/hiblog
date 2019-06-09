@@ -1,0 +1,179 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="htmlhead">
+    <meta charset="utf-8"></meta>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+    <meta name="description" content="A Blog with SpringBoot"></meta>
+    <meta name="author" content="LiZhen"></meta>
+    <link rel="shortcut icon" type="image/png" th:href="@{/images/favicon.png}"></link>
+    <title th:text="${webTitle != null ? webTitle + ' - HiBlog - 记录美好世界':'HiBlog - 记录美好世界'}"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link th:href="@{/css/style.css}" rel="stylesheet"></link>
+</head>
+<body>
+
+<div class="hb-index">
+
+    <div th:fragment="navbar" class="hb-index-width">
+        <div class="hb-index-nav">
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="active  hb-index-logo"><a href="#" th:href="@{/}"><img
+                                    th:src="@{/images/HiBlog.png}"></a></li>
+                            <!--<li><a href="#" class="hb-active">博客</a></li>-->
+                            <!--<li><a href="#">学院</a></li>-->
+                            <!--<li><a href="#">下载</a></li>-->
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <form th:action="@{/search}" method="get" class="navbar-form navbar-left">
+                                <div class="form-group">
+                                    <input type="text" name="keyword" class="form-control">
+                                </div>
+                            </form>
+                            <li th:unless="${userIsLogin}"><a href="javascript:;" data-toggle="modal" data-target="#showLoginModal">登录</a></li>
+                            <li th:unless="${userIsLogin}"><a href="javascript:;" data-toggle="modal" data-target="#showRegisterModal">注册</a></li>
+                            <li th:if="${userIsLogin}" role="presentation" class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                                   aria-haspopup="true" aria-expanded="false">
+                                    <img class="img-circle" th:src="@{${loginSessionUserInfo.getAvatar()}}"/>
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" th:href="@{/myInfo}"> 个人中心 </a></li>
+                                    <li><a href="#" th:href="@{/myInfo/collect}"> 我的收藏 </a></li>
+                                    <li><a href="#" th:href="@{/myInfo/follow}"> 我的关注 </a></li>
+                                    <li><a href="#" th:href="@{/myInfo/fans}"> 我的粉丝 </a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#" th:href="@{/user}"> 我的博客 </a></li>
+                                    <li><a href="#" th:href="@{/myArticle}"> 管理博客 </a></li>
+                                    <li><a href="#" th:href="@{/myArticle/write}"> 写博客 </a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#" th:href="@{/logout}"> 退出 </a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div th:fragment="footer">
+        <!-- 登陆Modal -->
+        <div class="modal fade" id="showLoginModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="width: 400px;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">账号登陆</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" th:action="@{/login/ajaxLogin}" method="post">
+                            <div class="form-group">
+                                <label class="control-label">账 号:</label>
+                                <input type="text" class="form-control" name="username" placeholder="请输入账号">
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">密 码:</label>
+                                <input type="password" class="form-control" name="password" placeholder="请输入密码">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:data="@{/login/ajaxLogin}" onclick="ajaxLoginOrRegister(this,'showLoginModal')">登 陆</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 注册Modal -->
+        <div class="modal fade" id="showRegisterModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="width: 400px;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">注册新用户</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="#" th:action="@{/register/ajaxRegister}" method="post">
+                            <div class="form-group">
+                                <label class="control-label">账 号:</label>
+                                <input type="text" class="form-control" name="username" placeholder="请输入账号">
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">昵 称:</label>
+                                <input type="text" class="form-control" name="nickname" placeholder="请输入昵称">
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">密 码:</label>
+                                <input type="password" class="form-control" name="password" placeholder="请输入密码">
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">确认密码:</label>
+                                <input type="password" class="form-control" name="comfirmPassword" placeholder="请输入确认密码">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:data="@{/register/ajaxRegister}" onclick="ajaxLoginOrRegister(this,'showRegisterModal')">注 册</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script
+                src="https://code.jquery.com/jquery-3.4.1.min.js"
+                integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+                crossorigin="anonymous"></script>
+        <script>
+            function ajaxLoginOrRegister(obj,id) {
+                var url = $(obj).attr("data");
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: $('#'+id+' form').serialize(),
+                    success: function (data) {
+                        if(data.state == 0){
+                            // 刷新页面
+                            window.location.reload()
+                        }else{
+                            alert(data.msg);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err)
+                    }
+                });
+            }
+            
+        </script>
+    </div>
+
+    <div th:fragment="noContent">
+        <div class="hb-no-content text-center">
+            暂无内容
+        </div>
+    </div>
+
+    <div th:fragment="about" class="hb-index-content-right-recommend">
+        <p class="banner-title">
+            关于
+        </p>
+        <p>
+            &copy 2019 hibolg.lastone.cc
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

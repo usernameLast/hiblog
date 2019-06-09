@@ -1,0 +1,275 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content bb-myArticle-content hb-myCategory-content">
+        <div th:replace="myArticle/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right pull-left">
+
+            <form class="form-inline" th:action="@{/myCategory/add}">
+                <div class="form-group">
+                    <input class="form-control" name="keyword" type="text"/>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="addCategory(this)">添加分类</button>
+            </form>
+
+            <div class="hb-myCategory-content-content">
+
+                <table class="table">
+                    <tr>
+                        <th width="60">排序</th>
+                        <th>类别</th>
+                        <th width="130">前台是否显示</th>
+                        <th width="250">操作</th>
+                    </tr>
+                    <tr th:each="obj,iterStat:${articleCategoryList}">
+                        <td class="show-up-bottom-box">
+                            <a href="#" th:if="${iterStat.index != 0}" th:onclick="'moveCategory('+${obj.getId()}+',1)'" th:class="${iterStat.index != 0 && iterStat.count != iterStat.size} ? 'show-up-bottom-box-top':''">
+                                <i class="glyphicon glyphicon-triangle-top"></i>
+                            </a>
+                            <a href="#" th:if="${iterStat.count != iterStat.size}" th:onclick="'moveCategory('+${obj.getId()}+',-1)'" th:class="${iterStat.index != 0 && iterStat.count != iterStat.size} ? 'show-up-bottom-box-bottom':''">
+                                <i class="glyphicon glyphicon-triangle-bottom"></i>
+                            </a>
+                        </td>
+                        <td class="edit-form">
+                            <span th:text="${obj.getName()}">分类1</span>
+                            <form class="form-inline hb-hide">
+                                <div class="form-group">
+                                    <input class="form-control" th:value="${obj.getName()}" type="text"/>
+                                </div>
+                                <button type="button" class="btn btn-link" th:onclick="'editTagName('+${obj.getId()}+',this)'">保存</button>
+                                |
+                                <button type="button" class="btn btn-link" onclick="cancleEdit(this)">取消</button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="#" th:if="${obj.getIsShow() == 1}" th:onclick="'editTagIsShow('+${obj.getId()}+',0)'">是</a>
+                            <a href="#" th:if="${obj.getIsShow() == 0}" th:onclick="'editTagIsShow('+${obj.getId()}+',1)'">否</a>
+                        </td>
+                        <td>
+                            <ol class="breadcrumb">
+                                <li th:if="${iterStat.index != 0}"><a href="javascript:;" th:onclick="'moveCategory('+${obj.getId()}+',0)'">置顶</a></li>
+                                <li><a href="#" onclick="showEdit(this)">编辑</a></li>
+                                <li><a href="#">查看</a></li>
+                                <li><a href="javascript:;" th:onclick="'deleteCategory('+${obj.getId()}+')'">删除</a></li>
+                            </ol>
+                        </td>
+                    </tr>
+
+                    <!--<tr>
+                        <td class="show-up-bottom-box">
+                            <a href="#" class="show-up-bottom-box-top">
+                                <i class="glyphicon glyphicon-triangle-top"></i>
+                            </a>
+                            <a href="#" class="show-up-bottom-box-bottom">
+                                <i class="glyphicon glyphicon-triangle-bottom"></i>
+                            </a>
+                        </td>
+                        <td class="edit-form">
+                            <span>分类1</span>
+                            <form class="form-inline hb-hide">
+                                <div class="form-group">
+                                    <input class="form-control" name="keyword" type="text"/>
+                                </div>
+                                <button type="button" class="btn btn-link">保存</button>
+                                |
+                                <button type="button" class="btn btn-link" onclick="cancleEdit(this)">取消</button>
+                            </form>
+                        </td>
+                        <td>是</td>
+                        <td>
+                            <ol class="breadcrumb">
+                                <li><a href="#">置顶</a></li>
+                                <li><a href="#" onclick="showEdit(this)">编辑</a></li>
+                                <li><a href="#">查看</a></li>
+                                <li><a href="#">删除</a></li>
+                            </ol>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="show-up-bottom-box">
+                            <a href="#" class="show-up-bottom-box-top">
+                                <i class="glyphicon glyphicon-triangle-top"></i>
+                            </a>
+                            <a href="#" class="show-up-bottom-box-bottom">
+                                <i class="glyphicon glyphicon-triangle-bottom"></i>
+                            </a>
+                        </td>
+                        <td class="edit-form">
+                            <span>分类1</span>
+                            <form class="form-inline hb-hide">
+                                <div class="form-group">
+                                    <input class="form-control" name="keyword" type="text"/>
+                                </div>
+                                <button type="button" class="btn btn-link">保存</button>
+                                |
+                                <button type="button" class="btn btn-link" onclick="cancleEdit(this)">取消</button>
+                            </form>
+                        </td>
+                        <td>是</td>
+                        <td>
+                            <ol class="breadcrumb">
+                                <li><a href="#">置顶</a></li>
+                                <li><a href="#" onclick="showEdit(this)">编辑</a></li>
+                                <li><a href="#">查看</a></li>
+                                <li><a href="#">删除</a></li>
+                            </ol>
+                        </td>
+                    </tr>-->
+
+                </table>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<script th:inline="javascript">
+    // 添加分类
+    function addCategory(obj) {
+        var url = $(obj).parent().attr('action');
+        var name = $(obj).prev().find('input').val().trim();
+        if(name == ''){
+            alert('请填写分类名称');
+            return;
+        }
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {name:name},
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload();
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 删除分类
+    function deleteCategory(id) {
+        if (confirm("确认删除?")){
+            var url = /*[[@{/myCategory/delete}]]*/'';
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {id:id},
+                success: function (data) {
+                    if(data.state == 0){
+                        // 刷新页面
+                        window.location.reload();
+                    }else{
+                        alert(data.msg)
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    }
+
+    //修改分类名称
+    function editTagName(id,obj) {
+        var name = $(obj).parent().find('input').val().trim();
+        if(name == ''){
+            alert('请填写分类名称');
+            return;
+        }
+        var url = /*[[@{/myCategory/edit}]]*/'';
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {id:id,name:name},
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload();
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 修改是否显示
+    function editTagIsShow(id,isShow) {
+        var url = /*[[@{/myCategory/edit}]]*/'';
+        // 修改头像
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {id:id,isShow:isShow},
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload();
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    /**
+     * 移动分类
+     * @param id
+     * @param type -1 下移，0置顶，1上移
+     */
+    function moveCategory(id,type) {
+        var url = /*[[@{/myCategory/move}]]*/'';
+        // 修改头像
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {id:id,type:type},
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload();
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+    
+    function showEdit(obj) {
+        $(obj).parents('tr').find('.edit-form span').addClass('hb-hide');
+        $(obj).parents('tr').find('.edit-form form').removeClass('hb-hide');
+    }
+    function cancleEdit(obj) {
+        $(obj).parents('td').find('span').removeClass('hb-hide');
+        $(obj).parents('form').addClass('hb-hide');
+    }
+
+</script>
+
+
+</body>
+</html>

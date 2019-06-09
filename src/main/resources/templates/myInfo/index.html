@@ -1,0 +1,369 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+
+<link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+
+<style>
+
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content">
+        <div th:replace="myInfo/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right pull-left">
+            <h3>个人资料</h3>
+            <div class="media">
+                <div class="media-left">
+                    <a href="javascript:;" onclick="toggleModel('#showAvatar')">
+                        <img class="media-object img-circle" id="hb-user-content-right-showAvatar" th:src="${editUserInfoVo.getAvatar()}">
+                        <p class="text-center">修改头像</p>
+                    </a>
+                </div>
+                <div class="media-body">
+                    <p class="text-right">
+                        <a href="#">个人主页></a>
+                    </p>
+                    <p>
+                        <span>昵称：<span th:text="${editUserInfoVo.getNickname()}"></span></span>
+                        <a href="javascript:;" onclick="toggleModel('#editUserInfo')" class="pull-right">修改资料</a>
+                    </p>
+                    <p>性别：
+                        <span th:if="${editUserInfoVo.getSex() == 1}">男</span>
+                        <span th:if="${editUserInfoVo.getSex() == 2}">女</span>
+                    </p>
+                    <p>生日：<span th:text="${editUserInfoVo.getBirthday()}"></span></p>
+                    <p>地区：<span th:text="${editUserInfoVo.getAddress()}"></span></p>
+                    <p>职位：<span th:text="${editUserInfoVo.getPosition()}"></span></p>
+                    <p>行业：<span th:text="${editUserInfoVo.getIndustryName()}"></span></p>
+                    <p>简介：<span th:text="${editUserInfoVo.getIntroduction()}"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="showAvatar" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">上传头像</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" th:action="@{/uploadDir/image}">
+                    <div id="showUploadImgDiv">
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadImage">选择图片</label>
+                        <input type="file" name="file" onchange="changeShowImage(this,'#showUploadImgDiv')"
+                               id="uploadImage">
+                        <p class="help-block">图片宽度*高度至少为150*150像素，大小不超过2MB</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="ajaxUploadImage()">保存</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserInfo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改资料</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">昵称:</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="nickname" th:value="${editUserInfoVo.getNickname()}" class="form-control" placeholder="昵称">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">性别:</label>
+                        <div class="col-sm-4">
+                            <select name="sex" class="form-control">
+                                <option value="0">请选择</option>
+                                <option value="1" th:selected="${editUserInfoVo.getSex() == 1}">男</option>
+                                <option value="2" th:selected="${editUserInfoVo.getSex() == 2}">女</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">生日:</label>
+
+                        <div class="col-sm-4">
+                            <div class="input-group date" id="datetimepicker1">
+                                <input type="text" name="birthday" th:value="${editUserInfoVo.getBirthday()}" class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">地区:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="provinceId" onchange="chooseArea(1,'#area_province')" id="area_province">
+                                <option value="0">请选择</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="cityId" onchange="chooseArea(2,'#area_city')" id="area_city">
+                                <option value="0">请选择</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="districtId" id="area_district">
+                                <option value="0">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">职位:</label>
+                        <div class="col-sm-4">
+                            <input type="text" name="position" th:value="${editUserInfoVo.getPosition()}" class="form-control" placeholder="职位">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">行业:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="industryId" id="select_industry">
+                                <option value="0">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">简介:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" name="introduction" th:text="${editUserInfoVo.getIntroduction()}"></textarea>
+                            <span class="help-block">最多300字</span>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserInfo()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/moment-with-locales.min.js}" charset="UTF-8"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+
+<script th:inline="javascript">
+
+    $('#datetimepicker1').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: moment.locale('zh-cn')
+    });
+
+    var _getUserInfo = false;
+    function toggleModel(id) {
+        if(id == '#editUserInfo'){
+            getUserInfo();
+        }
+        $(id).modal('toggle');
+    }
+
+    //保存用户信息
+    function saveUserInfo() {
+        var url = /*[[@{/myInfo/editUser}]]*/'';
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: $('#editUserInfo form').serialize(),
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload()
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 设置修改用户信息
+    function getUserInfo() {
+        if(_getUserInfo){
+            return;
+        }
+        _getUserInfo = true;
+        // 获得用户信息
+        var url = /*[[@{/myInfo/editUser}]]*/'';
+        var industryId = [[${editUserInfoVo.getIndustryId()}]];
+        var provinceId = [[${editUserInfoVo.getProvinceId()}]];
+        var cityId = [[${editUserInfoVo.getCityId()}]];
+        var districtId = [[${editUserInfoVo.getDistrictId()}]];
+        $.ajax({
+            url: url,
+            type: 'get',
+            data: {},
+            success: function (data) {
+                if(data.state == 0){
+                    // 添加职位
+                    addSelect(data.data.industryList,industryId,'#select_industry',true);
+                    addSelect(data.data.provinceList,provinceId,'#area_province',true);
+                    addSelect(data.data.cityList,cityId,'#area_city',true);
+                    addSelect(data.data.districtList,districtId,'#area_district',true);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 通过父级获得子级地区
+    function chooseArea(type,select) {
+        var id = $(select).val();
+        var option = {id:0,name:"请选择"};
+        if(id == 0){
+            if(type == 1){
+                // 选择省 清空市和区
+                addSelect([option],0,'#area_city',false);
+                addSelect([option],0,'#area_district',false);
+            }else{
+                //选择市 清空区
+                addSelect([option],0,'#area_district',false);
+            }
+        }else{
+            var url = /*[[@{/area/select}]]*/'';
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {id:id},
+                success: function (data) {
+                    if(data.state == 0){
+                        data.data.unshift(option)
+                        if(type == 1){
+                            // 选择省 修改市和清空区
+                            addSelect(data.data,0,'#area_city',false);
+                            addSelect([option],0,'#area_district',false);
+                        }else{
+                            //选择市 修改区
+                            addSelect(data.data,0,'#area_district',false);
+                        }
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    }
+
+    // 添加select内容
+    function addSelect(data,id,select,isAppend) {
+        if(data.length > 0){
+            var str = '';
+            $.each(data,function (index,item) {
+                var isSelect = item.id == id ? 'selected':'';
+                str += '<option value="'+item.id+'" '+ isSelect +'>'+item.name+'</option>';
+            })
+            if(isAppend){
+                $(select).append(str);
+            }else{
+                $(select).html(str)
+            }
+        }
+    }
+
+    // 显示上传的图片
+    function changeShowImage(obj, showId) {
+        var file = $(obj).get(0).files[0];
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            $(showId).html('<img class="img-circle" style="width: 160px;height: 160px;" src="' + this.result + '">')
+        }
+    }
+
+    var uploadUserAvatar = '';
+
+    // 图片上传
+    function ajaxUploadImage() {
+        var file = $('#uploadImage').get(0).files[0];
+        if(typeof file == 'undefined'){
+            alert('请选择图片');
+            return;
+        }
+        var url = /*[[@{/upload/image}]]*/'';
+        var formdata = new FormData();
+        formdata.append('file', file);
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: formdata,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if(data.state == 0){
+                    uploadUserAvatar = data.data.url;
+                    // 保存
+                    saveAvatar();
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    // 保存修改的图片
+    function saveAvatar() {
+        // 修改头像
+        var url = /*[[@{/myInfo/saveAvatar}]]*/'';
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {avatar:uploadUserAvatar},
+            success: function (data) {
+                if(data.state == 0){
+                    // 关闭弹窗
+                    toggleModel('#showAvatar');
+                    // 修改显示头像
+                    $('#hb-user-content-right-showAvatar').attr('src',uploadUserAvatar);
+                    uploadUserAvatar = '';
+                }
+                alert(data.msg)
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+
+    }
+
+</script>
+
+</body>
+</html>

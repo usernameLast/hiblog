@@ -1,0 +1,187 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content bb-myArticle-content">
+        <div th:replace="myArticle/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right pull-left">
+            <div class="bb-myArticle-content-right-nav">
+                <ul class="list-inline">
+                    <li th:class="${choose_tab == 'myArticleComment'?'active':''}">
+                        <a th:href="@{/myArticleComment(choose_tab='myArticleComment')}">我的博客评论</a>
+                    </li>
+                    <li th:class="${choose_tab == 'myPublishArticleComment'?'active':''}">
+                        <a th:href="@{/myArticleComment(choose_tab='myPublishArticleComment')}">我发表的评论</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bb-myArticle-comment-content">
+
+                <!-- 无内容 -->
+                <div th:if="${articleCommentPaging.get('totalNum') == 0}">
+                    <div th:replace="layout :: noContent"></div>
+                </div>
+
+
+                <div th:if="${articleCommentPaging.get('totalNum') > 0}">
+                    <!-- 我的文章评论 -->
+                    <div th:if="${choose_tab == 'myArticleComment'}" class="content">
+
+                        <div class="media" th:each="obj:${articleCommentPaging.get('myArticleCommentVoList')}">
+                            <div class="media-left">
+                                <a th:href="@{/user/{id}(id=${obj.getUid()})}">
+                                    <img class="media-object img-circle" th:src="${obj.getAvatar()}">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <div class="media-heading">
+                                    <span th:text="${obj.getNickname()}">昵称</span>
+                                    <span th:text="${obj.getCreatedAt()}">时间</span>
+                                    <span>回复了你的博客</span>
+                                    <a th:href="@{/user/article/{id}(id=${obj.getArticleId()})}" th:text="${obj.getArticleTitle()}"></a>
+                                    <ol class="breadcrumb pull-right hb-hide">
+                                        <li><a href="javascript:;" onclick="replayNow(this)">快速回复</a></li>
+                                        <li><a href="javascript:;" th:onclick="'deleteComment('+${obj.getId()}+')'">删除</a></li>
+                                    </ol>
+                                </div>
+                                <blockquote>
+                                    <p th:text="${obj.getContent()}">评论内容</p>
+                                </blockquote>
+                                <div class="media hb-hide">
+                                    <div class="media-body">
+                                        <form class="form-inline">
+                                            <input type="hidden" class="articleId" name="articleId" th:value="${obj.getArticleId()}">
+                                            <input type="hidden" class="replyUid" name="replyUid" th:value="${obj.getUid()}">
+                                            <input type="hidden" name="checkUser" th:value="0">
+                                            <input type="hidden" class="parentId" name="parentId" th:value="${obj.getParentId() == 0?obj.getId():obj.getParentId()}">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control content" name="content" placeholder="发表你的评论">
+                                            </div>
+                                            <button type="button" class="btn btn-default" onclick="addComment(this)">回复评论</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 我发布的评论 -->
+                    <div th:if="${choose_tab == 'myPublishArticleComment'}" class="content">
+
+                        <div class="media" th:each="obj:${articleCommentPaging.get('myArticleCommentVoList')}">
+                            <div class="media-left">
+                                我
+                            </div>
+                            <div class="media-body">
+                                <div class="media-heading">
+                                    <span th:text="${obj.getCreatedAt()}">时间</span>
+                                    <span th:text="${'评论 '+ obj.getNickname() + ' 的博客'}"></span>
+                                    <a th:href="@{/user/article/{id}(id=${obj.getArticleId()})}" th:text="${obj.getArticleTitle()}"></a>
+                                    <ol class="breadcrumb pull-right hb-hide">
+                                        <li><a href="javascript:;" th:onclick="'deleteComment('+${obj.getId()}+')'">删除</a></li>
+                                    </ol>
+                                </div>
+                                <blockquote>
+                                    <p th:text="${obj.getContent()}"></p>
+                                </blockquote>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="text-center" th:if="${articleCommentPaging.get('totalPage') > 1}">
+                    <ul class="pagination">
+
+                        <li th:class="${articleCommentPaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${articleCommentPaging.get('nowPage')==1}?'':'goPage('+${articleCommentPaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') -3}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')-3}+')'">1</a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') -2}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')-2}+')'">1</a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') -1}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')-1}+')'">1</a></li>
+                        <li class="active"><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage')}" >1</a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')+1 <=articleCommentPaging.get('totalPage')}"><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') +1}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')+1}+')'">1</a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')+2 <=articleCommentPaging.get('totalPage')}"><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') +2}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')+2}+')'">1</a></li>
+                        <li th:if="${articleCommentPaging.get('nowPage')+3 <=articleCommentPaging.get('totalPage')}"><a href="javascript:;" th:text="${articleCommentPaging.get('nowPage') +3}" th:onclick="'goPage('+${articleCommentPaging.get('nowPage')+3}+')'">1</a></li>
+                        <li th:class="${articleCommentPaging.get('nowPage')==articleCommentPaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${articleCommentPaging.get('nowPage')==articleCommentPaging.get('totalPage')}?'':'goPage('+${articleCommentPaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+
+                    </ul>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<script th:inline="javascript">
+    function replayNow(obj) {
+        $(obj).parents('.media-heading').next().next().toggle();
+    }
+
+    function addComment(obj) {
+        var url = /*[[@{/myArticleComment/add}]]*/'';
+        if($.trim($(obj).parent().find('.content').val()) == ''){
+            alert('请填写评论内容');
+            return;
+        }
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: $(obj).parent().serialize(),
+            success: function (data) {
+                if(data.state == 0){
+                    // 刷新页面
+                    window.location.reload();
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    function deleteComment(id) {
+        var url = /*[[@{/myArticleComment/delete}]]*/'';
+        if(confirm("是否删除?")){
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {id:id},
+                success: function (data) {
+                    if(data.state == 0){
+                        // 刷新页面
+                        window.location.reload();
+                    }else{
+                        alert(data.msg);
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    }
+
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/myArticleComment(choose_tab=${choose_tab})}]]*/'';
+        url += '&page='+page;
+        window.location.href = url;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="userRightInfo(blogUserInfo,newestArticleList,articleCategoryList,newestArticleCommentList)" class="hb-article-content-right pull-left">
+    <div class="user">
+        <div class="user_img">
+            <a href="#" th:href="@{/user/{id}(id=${blogUserInfo.getId()})}">
+                <img class="media-object img-circle" th:src="@{${blogUserInfo.getAvatar()}}">
+            </a>
+        </div>
+        <div class="user_name">
+            <a href="#" th:href="@{/user/{id}(id=${blogUserInfo.getId()})}" th:text="${blogUserInfo.getNickname()}">
+                昵称
+            </a>
+        </div>
+
+        <div class="user_follow" th:if="${blogUserInfo.getFollowType() > -1}">
+            <button type="button" class="btn btn-default" th:onclick="'followUser('+${blogUserInfo.getFollowType()==0?1:0}+','+${blogUserInfo.getId()}+',this)'" th:text="${blogUserInfo.getFollowType()==0?'关注':'取消关注'}">是否关注</button>
+        </div>
+    </div>
+
+    <div class="user_data_num">
+        <ul class="list-inline">
+            <li>
+                <p>原创</p>
+                <p th:text="${blogUserInfo.getArticleNum()}">222</p>
+            </li>
+            <li>
+                <p>粉丝</p>
+                <p th:text="${blogUserInfo.getFansNum()}">222</p>
+            </li>
+            <li>
+                <p>关注</p>
+                <p th:text="${blogUserInfo.getFollowNum()}">222</p>
+            </li>
+            <li>
+                <p>评论</p>
+                <p th:text="${blogUserInfo.getCommentNum()}">222</p>
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="hb-article-content-right-recommend" th:if="${newestArticleList.size() > 0}">
+        <p class="banner-title">
+            最新博客
+        </p>
+        <ul class="hb-index-article no-list-style">
+            <li th:each="obj:${newestArticleList}">
+                <a href="#"  th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getTitle()}">
+                    标题
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="hb-article-content-right-recommend" th:if="${articleCategoryList.size() > 0}">
+        <p class="banner-title">
+            个人分类
+        </p>
+        <ul class="hb-index-article hb-article-recommend-category no-list-style">
+            <li th:each="obj:${articleCategoryList}">
+                <a href="#" th:href="@{/user/{id}/category/{category}(id=${blogUserInfo.getId()},category=${obj.getId()})}">
+                    <div class="pull-left oneline" th:text="${obj.getName()}">
+                        分类名
+                    </div>
+                    <div class="pull-right" th:text="${obj.getNum() + '篇'}">
+                        分类数量
+                    </div>
+                    <div class="clearfix"></div>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="hb-article-content-right-recommend" th:if="${newestArticleCommentList.size() > 0}">
+        <p class="banner-title">
+            最新评论
+        </p>
+        <ul class="hb-index-article no-list-style">
+            <li th:each="obj:${newestArticleCommentList}">
+                <a href="#" th:href="@{/user/article/{id}(id=${obj.getArticleId()})}" th:text="${obj.getArticleTitle()}">
+                    标题
+                </a>
+                <p>
+                    <a class="content" href="#" th:href="@{/user/{id}(id=${obj.getUid()})}" th:text="${obj.getNickname() + '：'}">昵称</a>
+                    <span class="content" th:text="${obj.getContent()}">内容</span>
+                </p>
+            </li>
+        </ul>
+    </div>
+
+    <div th:replace="layout :: about"></div>
+
+    <script th:inline="javascript">
+        function followUser(type,uid,obj) {
+            var url = /*[[@{/myInfo/setFollow}]]*/'';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {uid:uid,type:type},
+                success: function (data) {
+                    if(data.state == 0){
+                        // 修改类型
+                        if(type == 0){
+                            $(obj).text('关注');
+                            $(obj).attr('onclick','followUser(1,'+uid+',this)');
+                        }else{
+                            $(obj).text('取消关注');
+                            $(obj).attr('onclick','followUser(0,'+uid+',this)');
+                        }
+                    }else{
+                        alert(data.msg);
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+
+    </script>
+
+</div>
+
+
+</html>

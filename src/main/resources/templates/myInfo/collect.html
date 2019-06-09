@@ -1,0 +1,88 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-user-content">
+        <div th:replace="myInfo/layout :: userLeft"></div>
+
+        <div class="hb-user-content-right hb-user-collect-right pull-left">
+            <h3>我的收藏 <span class="pull-right" th:text="'共' + ${collectArticlePaging.get('totalNum') + '条'}">共2条</span></h3>
+
+            <div th:if="${collectArticlePaging.get('totalNum') == 0}">
+                <div th:replace="layout :: noContent"></div>
+            </div>
+
+            <ul class="list-unstyled hb-user-collect-list" th:if="${collectArticlePaging.get('totalNum') > 0}">
+                <li th:each="obj:${collectArticlePaging.get('collectArticleList')}">
+                    <a th:href="@{/user/article/{id}(id=${obj.getId()})}" target="_blank" th:text="${obj.getTitle() + ' - ' + obj.getNickname()}">20个传智播客JAVA项目集锦 JAVA精华项目开发(全集) - qq_42872321的博客</a>
+                    <a href="javascript:;" th:onclick="'collectArticle('+${obj.getId()}+',0,this)'" class="pull-right">
+                        取消收藏
+                    </a>
+                </li>
+            </ul>
+
+            <nav aria-label="Page navigation" th:if="${collectArticlePaging.get('totalPage') > 1}">
+                <ul class="pagination" >
+                    <li th:class="${collectArticlePaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${collectArticlePaging.get('nowPage')==1}?'':'goPage('+${collectArticlePaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') -3}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')-3}+')'">1</a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') -2}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')-2}+')'">1</a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') -1}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')-1}+')'">1</a></li>
+                    <li class="active"><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage')}" >1</a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')+1 <=collectArticlePaging.get('totalPage')}"><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') +1}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')+1}+')'">1</a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')+2 <=collectArticlePaging.get('totalPage')}"><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') +2}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')+2}+')'">1</a></li>
+                    <li th:if="${collectArticlePaging.get('nowPage')+3 <=collectArticlePaging.get('totalPage')}"><a href="javascript:;" th:text="${collectArticlePaging.get('nowPage') +3}" th:onclick="'goPage('+${collectArticlePaging.get('nowPage')+3}+')'">1</a></li>
+                    <li th:class="${collectArticlePaging.get('nowPage')==collectArticlePaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${collectArticlePaging.get('nowPage')==collectArticlePaging.get('totalPage')}?'':'goPage('+${collectArticlePaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+</body>
+<script th:inline="javascript">
+
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/myInfo/collect}]]*/'';
+
+        url += '&page='+page;
+        window.location.href = url;
+    }
+
+    function collectArticle(articleId,type,obj) {
+        var url = /*[[@{/myInfo/setCollect}]]*/'';
+
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {articleId:articleId,type:type},
+            success: function (data) {
+                if(data.state == 0){
+                    // 修改类型
+                    if(type == 0){
+                        $(obj).text('收藏');
+                        $(obj).attr('onclick','collectArticle('+articleId+',1,this)');
+                    }else{
+                        $(obj).text('取消收藏');
+                        $(obj).attr('onclick','collectArticle('+articleId+',0,this)');
+                    }
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+</script>
+</html>

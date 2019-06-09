@@ -1,0 +1,378 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-article-content">
+        <div class="hb-article-content-left pull-left">
+            <ul class="list-group text-center">
+                <li class="list-group-item">
+                    <a href="#commentPoint">
+                        评论
+                    </a>
+                </li>
+                <li th:if="${articleDetailInfo.getCollectType() > -1}" class="list-group-item">
+                    <a href="javascript:;" th:onclick="'collectArticle('+${articleDetailInfo.getId()}+','+${articleDetailInfo.getCollectType() == 0?1:0}+',this)'" th:text="${articleDetailInfo.getCollectType() == 0?'收藏':'取消收藏'}">
+                        收藏
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="hb-article-content-center pull-left">
+            <div class="hb-article-content-center-div">
+                <div class="hb-article-content-center-div-title">
+                    <h2 th:text="${articleDetailInfo.getTitle()}">
+                        标题
+                    </h2>
+                    <span th:text="${articleDetailInfo.getCreatedAt()}">时间</span>
+                    <span th:text="'阅读数：' + ${articleDetailInfo.getVisitedNum()}">阅读数</span>
+                    <span th:if="${articleDetailInfo.getLabels() != ''}">
+                        <span>标签：</span>
+                        <a th:each="obj:${articleDetailInfo.getLabelsArr()}" th:text="${obj}" class="tag-link" href="#" target="_blank">标签</a>
+                    </span>
+                    <p th:if="${articleDetailInfo.getArticleCategoryList().size() > 0}">
+                        个人分类：
+                        <a th:each="obj:${articleDetailInfo.getArticleCategoryList()}" th:text="${obj.getName()}" href="#">分类</a>
+                    </p>
+                </div>
+
+                <!--  博客内容 -->
+                <div class="htmledit_views" id="content_views" th:utext="${articleDetailInfo.getContent()}">
+                    内容
+                </div>
+
+            </div>
+
+            <!-- 博客评论 -->
+            <div class="hb-article-content-center-comment-div">
+
+                <div class="media margin-bottom-10">
+                    <form action="#" id="replayCommentForm">
+                        <a id="commentPoint"></a>
+                        <input type="hidden" class="articleId" name="articleId" th:value="${articleDetailInfo.getId()}">
+                        <input type="hidden" class="replyUid" name="replyUid" value="0">
+                        <input type="hidden" class="parentId" name="parentId" value="0">
+                        <div class="media-left">
+                            <a href="#" th:href="@{/user/{id}(id=${loginSessionUserInfo.getId()})}" th:if="${userIsLogin}">
+                                <img class="media-object img-circle" th:src="@{${loginSessionUserInfo.getAvatar()}}">
+                            </a>
+                            <a href="javascript:;" th:if="${!userIsLogin}">
+                                <img class="media-object img-circle" th:src="@{/images/defaultAvatar.png}">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <div class="form-group">
+                                <textarea th:disabled="${userIsLogin?false:true}" th:text="${userIsLogin?'':'请先登录~'}" class="form-control content" name="content" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" th:disabled="${userIsLogin?false:true}" onclick="addComment()" class="btn btn-primary pull-right">发表评论</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="content">
+
+                    <!--<div class="media">
+                        <div class="media-left">
+                            <a href="#">
+                                <img class="media-object img-circle" th:src="@{/images/defaultAvatar.png}">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <div class="margin-bottom-10">
+                                <a href="#">爱在南信 ：</a>
+                                <span>突然想到一个例子。在师人性化，学生还考好。在师人性化，在师人性化，在师人性化，在师人性化，</span>
+                                <span class="date">(2017-11-12 11:11:11)</span>
+                                <span class="show_replay">
+                                    <a href="#">查看回复</a>
+                                    <a href="#">回复</a>
+                                </span>
+                            </div>
+                            <div class="replay-content">
+                                <div class="media margin-bottom-10">
+                                    <blockquote>
+                                        <div class="media-left">
+                                            <a href="#">
+                                                <img class="media-object img-circle" th:src="@{/images/defaultAvatar.png}">
+                                            </a>
+                                        </div>
+                                        <div class="media-body">
+                                            <a href="#">爱在南信2 </a>
+                                            <span>回复</span>
+                                            <span>爱在南信:</span>
+                                            <span>突然想到一个到一个例子。在大学上算</span>
+                                            <span class="date">(2017-11-12 11:11:11)</span>
+                                            <span class="show_replay">
+                                                <a href="#">回复</a>
+                                            </span>
+                                        </div>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <ul class="pagination">
+                            <li>
+                                <a href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li>
+                                <a href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>-->
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div th:replace="user/layout :: userRightInfo(blogUserInfo=${blogUserInfo},newestArticleList=${newestArticleList},articleCategoryList=${articleCategoryList},newestArticleCommentList=${newestArticleCommentList})"></div>
+
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+<script th:inline="javascript">
+    var ctxPath = /*[[@{/}]]*/ '';
+    var loginUserId = /*[[${loginSessionUserInfo != null ? loginSessionUserInfo.getId():0}]]*/ '';
+    if(ctxPath == '/'){
+        ctxPath = '';
+    }
+
+    var _pageNow = 1;
+
+    function collectArticle(articleId,type,obj) {
+        var url = /*[[@{/myInfo/setCollect}]]*/'';
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {articleId:articleId,type:type},
+            success: function (data) {
+                if(data.state == 0){
+                    // 修改类型
+                    if(type == 0){
+                        $(obj).text('收藏');
+                        $(obj).attr('onclick','collectArticle('+articleId+',1,this)');
+                    }else{
+                        $(obj).text('取消收藏');
+                        $(obj).attr('onclick','collectArticle('+articleId+',0,this)');
+                    }
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    function addComment() {
+        var url = /*[[@{/myArticleComment/add}]]*/'';
+        if($.trim($('#replayCommentForm .content').val()) == ''){
+            alert('请填写评论内容');
+            return;
+        }
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: $('#replayCommentForm').serialize(),
+            success: function (data) {
+                if(data.state == 0){
+                    // 修改数据
+                    $('#replayCommentForm .replyUid').val(0);
+                    $('#replayCommentForm .parentId').val(0);
+                    $('#replayCommentForm .content').val('');
+
+                    //  调用获得评论方法
+                    getArticleComment(_pageNow);
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    function replayComment(replyUid,nickname,parentId) {
+        var userIsLogin = /*[[${userIsLogin}]]*/false;
+        if(!userIsLogin){
+            return;
+        }
+        $('#replayCommentForm .content').val('[replay]'+nickname+'[/replay]'+"\r\n");
+        $('#replayCommentForm .replyUid').val(replyUid);
+        $('#replayCommentForm .parentId').val(parentId);
+        $('#replayCommentForm .content').focus();
+    }
+
+    // replay(1,1)
+
+    // 获得评论
+    function getArticleComment(page) {
+        _pageNow = page;
+        var url = /*[[@{/user/comment/{id}(id=${articleDetailInfo.getId()})}]]*/'';
+        var baseUserUrl = /*[[@{/user}]]*/'';
+
+        $.ajax({
+            url: url,
+            type: 'get',
+            data: {page:page},
+            success: function (data) {
+                if(data.state == 0){
+                    // todo:: 生成数据
+                    var str ='';
+                    if(data.data.articleCommentVoList.length > 0){
+                        $.each(data.data.articleCommentVoList,function (key,item) {
+                            console.log(item);
+                            var userUrl = baseUserUrl + '/'+ item.uid;
+                            var userAvatarUrl = ctxPath + item.avatar;
+                            var userNickname = item.nickname;
+                            var content = item.status == 1 ? item.content:'评论禁止查看';
+                            var createdAt = item.createdAt;
+                            var replayNum = item.articleCommentReplayVoList.length;
+                            var canDelete = loginUserId == item.uid || loginUserId == item.articleUid
+                            str += '<div class="media">';
+                            str += '    <div class="media-left">';
+                            str += '        <a href="'+userUrl+'">';
+                            str += '            <img class="media-object img-circle" src="'+userAvatarUrl+'">';
+                            str += '        </a>';
+                            str += '    </div>';
+                            str += '    <div class="media-body">';
+                            str += '        <div class="margin-bottom-10">';
+                            str += '            <a href="'+userUrl+'">'+userNickname+' ：</a>';
+                            str += '            <span>'+content+'</span>';
+                            str += '            <span class="date">('+createdAt+')</span>';
+                            str += '            <span class="show_replay">';
+                            if(replayNum > 0){
+                                str += '            <a href="javascript:;" onclick="showReplayContent(this)">查看回复('+replayNum+')</a>';
+                            }
+                            str += '                <a href="javascript:;" onclick="replayComment('+item.uid+',\''+userNickname+'\','+item.id+')">回复</a>';
+                            if(canDelete){
+                                str += '                <a href="javascript:;" onclick="deleteComment('+item.id+')">删除</a>';
+                            }
+                            str += '            </span>';
+                            str += '        </div>';
+                            str += '        <div class="replay-content hb-hide">';
+                            // 判断是否有回复内容
+                            if(replayNum > 0){
+                                $.each(item.articleCommentReplayVoList,function (replayKey,replay) {
+                                    var userUrl = baseUserUrl + '/'+ replay.uid;
+                                    var userAvatarUrl = ctxPath + replay.avatar;
+                                    var userNickname = replay.nickname;
+                                    var content = replay.status == 1 ? replay.content:'评论禁止查看';
+                                    var createdAt = replay.createdAt;
+                                    var replayNickname = replay.replyNickname;
+                                    var canDelete = loginUserId == replay.uid || loginUserId == replay.articleUid
+
+                                    str += '<div class="media margin-bottom-10">';
+                                    str += '    <blockquote>';
+                                    str += '        <div class="media-left">';
+                                    str += '            <a href="'+userUrl+'">';
+                                    str += '                <img class="media-object img-circle" src="'+userAvatarUrl+'">';
+                                    str += '            </a>';
+                                    str += '        </div>';
+                                    str += '        <div class="media-body">';
+                                    str += '            <a href="'+userUrl+'">'+userNickname+' </a>';
+                                    str += '            <span>回复</span>';
+                                    str += '            <span>'+replayNickname+':</span>';
+                                    str += '            <span>'+content+'</span>';
+                                    str += '            <span class="date">('+createdAt+')</span>';
+                                    str += '            <span class="show_replay">';
+                                    str += '                <a href="javascript:;" onclick="replayComment('+replay.uid+',\''+userNickname+'\','+item.id+')">回复</a>';
+                                    if(canDelete){
+                                        str += '                <a href="javascript:;" onclick="deleteComment('+replay.id+')">删除</a>';
+                                    }
+                                    str += '            </span>';
+                                    str += '        </div>';
+                                    str += '    </blockquote>';
+                                    str += '</div>';
+                                })
+                            }
+                            str += '        </div>';
+                            str += '    </div>';
+                            str += '</div>';
+                        })
+                    }
+
+                    // 设置分页
+                    if(data.data.totalPage > 1){
+                        var nowPage = data.data.nowPage;
+                        var totalPage = data.data.totalPage;
+                        var page_3 = page-3;
+                        var page_2 = page-2;
+                        var page_1 = page-1;
+                        var page1 = page+1;
+                        var page2 = page+2;
+                        var page3 = page+3;
+                        str += '<div class="text-center">';
+                        str += '    <ul class="pagination">';
+                        str += '        <li class="'+(nowPage == 1?'disabled':'')+'"><a href="javascript:;" onclick="'+(nowPage == 1?'':'getArticleComment('+(nowPage - 1)+')')+'"><span aria-hidden="true">&laquo;</span></a></li>';
+                        str += page_3 >= 1 ?'    <li><a href="javascript:;" onclick="getArticleComment('+page_3+')">'+page_3+'</a></li>':'';
+                        str += page_2 >= 1 ?'    <li><a href="javascript:;" onclick="getArticleComment('+page_2+')">'+page_2+'</a></li>':'';
+                        str += page_1 >= 1 ?'    <li><a href="javascript:;" onclick="getArticleComment('+page_1+')">'+page_1+'</a></li>':'';
+                        str += '    <li class="active"><a href="javascript:;">'+nowPage+'</a></li>';
+                        str += page1 <=totalPage ?'    <li><a href="javascript:;" onclick="getArticleComment('+page1+')">'+page1+'</a></li>':'';
+                        str += page2 <=totalPage ?'    <li><a href="javascript:;" onclick="getArticleComment('+page2+')">'+page2+'</a></li>':'';
+                        str += page3 <=totalPage ?'    <li><a href="javascript:;" onclick="getArticleComment('+page3+')">'+page3+'</a></li>':'';
+                        str += '        <li class="'+(nowPage == totalPage?'disabled':'')+'"><a href="javascript:;" onclick="'+(nowPage == totalPage?'':'getArticleComment('+(nowPage + 1)+')')+'"><span aria-hidden="true">&raquo;</span></a></li>';
+                        str += '    </ul>';
+                        str += '</div>';
+                    }
+                    $('.hb-article-content-center-comment-div > .content').html(str);
+                    // console.log(data);
+                }else{
+                    alert(data.msg);
+                }
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    function showReplayContent(obj){
+        $(obj).parents('.media-body').find('.replay-content').toggle();
+    }
+
+    function deleteComment(id) {
+        var url = /*[[@{/myArticleComment/delete}]]*/'';
+        if(confirm("是否删除?")){
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {id:id},
+                success: function (data) {
+                    if(data.state == 0){
+                        getArticleComment(_pageNow);
+                    }else{
+                        alert(data.msg);
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    }
+
+    getArticleComment(1);
+
+</script>
+</body>
+</html>

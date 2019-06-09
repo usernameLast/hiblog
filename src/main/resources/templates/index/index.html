@@ -1,0 +1,132 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-index-content">
+        <div class="hb-index-content-left pull-left">
+            <ul class="list-group text-center">
+
+                <li th:each="obj:${categoryList}" th:classappend="${category_id == obj.getId()?'hb-active':''}" class="list-group-item">
+                    <a href="#" th:href="@{/(category_id=${obj.getId()})}" th:text="${obj.getName()}">
+                        分类名
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+        <div class="hb-index-content-center pull-left">
+
+            <!-- 无内容 -->
+            <div th:if="${articlePaging.get('totalNum') == 0}">
+                <div th:replace="layout :: noContent"></div>
+            </div>
+
+            <ul class="no-list-style" th:if="${articlePaging.get('totalNum') > 0}">
+                <li th:each="obj:${articlePaging.get('articleList')}">
+                    <h4>
+                        <a href="#" target="_blank" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getTitle()}">
+                            标题
+                        </a>
+                    </h4>
+                    <p class="oneline" th:text="${obj.getIntroduction()}">
+                        简介
+                    </p>
+                    <div>
+                        <div class="pull-left">
+                            <a href="#" target="_blank" th:href="@{/user/{id}(id=${obj.getUid()})}">
+                                <img th:src="@{${obj.getAvatar()}}" class="img-circle">
+                            </a>
+                            <a href="#" target="_blank" th:href="@{/user/{id}(id=${obj.getUid()})}">
+                                <span th:text="${obj.getNickname()}">昵称</span>
+                            </a>
+                            &nbsp;|&nbsp;
+                            <span th:text="${obj.getCreatedAt()}">时间</span>
+                        </div>
+                        <div class="pull-right">
+                            <span>阅读数 </span>
+                            <span th:text="${obj.getVisitedNum()}"></span>
+                            &nbsp;|&nbsp;
+                            <span>评论数 </span>
+                            <span th:text="${obj.getCommentNum()}"></span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </li>
+
+            </ul>
+
+            <div class="text-center" th:if="${articlePaging.get('totalPage') > 1}">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" >
+                        <li th:class="${articlePaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==1}?'':'goPage('+${articlePaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                        <li th:if="${articlePaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -3}" th:onclick="'goPage('+${articlePaging.get('nowPage')-3}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -2}" th:onclick="'goPage('+${articlePaging.get('nowPage')-2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -1}" th:onclick="'goPage('+${articlePaging.get('nowPage')-1}+')'">1</a></li>
+                        <li class="active"><a href="javascript:;" th:text="${articlePaging.get('nowPage')}" >1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+1 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +1}" th:onclick="'goPage('+${articlePaging.get('nowPage')+1}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+2 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +2}" th:onclick="'goPage('+${articlePaging.get('nowPage')+2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+3 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +3}" th:onclick="'goPage('+${articlePaging.get('nowPage')+3}+')'">1</a></li>
+                        <li th:class="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'':'goPage('+${articlePaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+        <div class="hb-index-content-right pull-left">
+            <div class="hb-index-content-right-recommend" th:if="${popularUserList.size() > 0}">
+                <p class="banner-title">
+                    热门博主
+                </p>
+                <ul class="hb-index-user no-list-style">
+                    <li th:each="obj:${popularUserList}">
+                        <a href="#" target="_blank" th:href="@{/user/{id}(id=${obj.getId()})}">
+                            <div class="media">
+                                <div class="media-left">
+                                    <img th:src="@{${obj.getAvatar()}}" class="img-circle">
+                                </div>
+                                <div class="media-body">
+                                    <p th:text="${obj.getNickname()}">昵称</p>
+                                    <p th:text="${obj.getPosition()}">职位</p>
+                                </div>
+                            </div>
+                            <p class="oneline" th:text="${obj.getIntroduction() != ''?obj.getIntroduction():' '}">
+                                简介
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="hb-index-content-right-recommend" th:if="${popularArticleList.size() > 0}">
+                <p class="banner-title">
+                    热门博客
+                </p>
+                <ul class="hb-index-article no-list-style">
+                    <li th:each="obj:${popularArticleList}" class="popular-article-list">
+                        <a href="#" target="_blank" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getTitle()}">
+                            标题
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div th:replace="layout :: about"></div>
+
+        </div>
+
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+</body>
+<script th:inline="javascript">
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/(category_id=${category_id})}]]*/'';
+        url += '&page='+page;
+        window.location.href = url;
+    }
+</script>
+</html>

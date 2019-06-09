@@ -1,0 +1,23 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="userLeft" class="hb-user-content-left pull-left">
+    <ul class="list-group text-center">
+        <li class="list-group-item" th:classappend="${myInfoRotuer} eq 'index' ?'hb-active':''">
+            <a href="#" th:href="@{/myInfo}"> 个人中心 </a>
+        </li>
+        <li class="list-group-item" th:classappend="${myInfoRotuer} eq 'collect' ?'hb-active':''">
+            <a href="#" th:href="@{/myInfo/collect}"> 我的收藏 </a>
+        </li>
+        <li class="list-group-item" th:classappend="${myInfoRotuer} eq 'follow' ?'hb-active':''">
+            <a href="#" th:href="@{/myInfo/follow}"> 我的关注 </a>
+        </li>
+        <li class="list-group-item" th:classappend="${myInfoRotuer} eq 'fans' ?'hb-active':''">
+            <a href="#" th:href="@{/myInfo/fans}"> 我的粉丝 </a>
+        </li>
+        <li class="list-group-item">
+            <a href="#" target="_blank" th:href="@{/myArticle}"> 我的博客 </a>
+        </li>
+    </ul>
+</div>
+
+</html>

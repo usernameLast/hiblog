@@ -1,0 +1,111 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-article-content hb-other-user">
+        <div class="hb-article-content-center pull-left">
+
+            <div class="title">
+                <div class="checkbox pull-left">
+                    <label th:if="${blogCategoryName == ''}">
+                        <input type="checkbox" onclick="chooseBlogType(this)" th:checked="${blogType == 1}" value="1"> 只看原创
+                    </label>
+                    <span th:if="${blogCategoryName != ''}">
+                        <a th:href="@{/user/{id}(id=${blogUserInfo.getId()})}">全部博客</a>
+                        <span> > </span>
+                        <span th:text="${blogCategoryName}">分类</span>
+                    </span>
+                </div>
+                <div class="pull-right">
+                    <span>排序：</span>
+                    <a th:href="@{/user/{id}(id=${blogUserInfo.getId()},order='default')}" th:class="${blogOrderBy == 'default'?'active':''}"> 默认 </a>
+                    <a th:href="@{/user/{id}(id=${blogUserInfo.getId()},order='updateOrder')}" th:class="${blogOrderBy == 'updateOrder'?'active':''}"> 按更新时间 </a>
+                    <a th:href="@{/user/{id}(id=${blogUserInfo.getId()},order='visitedOrder')}" th:class="${blogOrderBy == 'visitedOrder'?'active':''}"> 按访问量 </a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="content">
+
+                <!-- 无内容 -->
+                <div th:if="${articlePaging.get('totalNum') == 0}">
+                    <div th:replace="layout :: noContent"></div>
+                </div>
+
+                <ul th:if="${articlePaging.get('totalNum') > 0}" class="no-list-style content-ul">
+                    <li th:each="obj,index:${articlePaging.get('articleList')}">
+                        <h4>
+                            <span th:if="${obj.getType() == 1}" class="label label-info">原</span>
+                            <span th:if="${obj.getType() == 2}" class="label label-default">转</span>
+                            <span th:if="${obj.getType() == 3}" class="label label-warning">译</span>
+                            <a href="#" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getTitle()}">
+                                标题
+                            </a>
+                        </h4>
+                        <p>
+                            <a href="#" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getIntroduction()}">
+                                简介
+                            </a>
+                        </p>
+                        <div>
+                            <div>
+                                <span th:text="${obj.getCreatedAt()}"> 时间 </span> |
+                                <span> 阅读数 </span> <span class="text-primary" th:text="${obj.getVisitedNum()}"> 0 </span> |
+                                <span> 评论数 </span> <span class="text-primary" th:text="${obj.getCommentNum()}"> 0 </span>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+
+                <div class="text-center" th:if="${articlePaging.get('totalPage') > 1}">
+                    <ul class="pagination">
+
+                        <li th:class="${articlePaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==1}?'':'goPage('+${articlePaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                        <li th:if="${articlePaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -3}" th:onclick="'goPage('+${articlePaging.get('nowPage')-3}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -2}" th:onclick="'goPage('+${articlePaging.get('nowPage')-2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${articlePaging.get('nowPage') -1}" th:onclick="'goPage('+${articlePaging.get('nowPage')-1}+')'">1</a></li>
+                        <li class="active"><a href="javascript:;" th:text="${articlePaging.get('nowPage')}" >1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+1 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +1}" th:onclick="'goPage('+${articlePaging.get('nowPage')+1}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+2 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +2}" th:onclick="'goPage('+${articlePaging.get('nowPage')+2}+')'">1</a></li>
+                        <li th:if="${articlePaging.get('nowPage')+3 <=articlePaging.get('totalPage')}"><a href="javascript:;" th:text="${articlePaging.get('nowPage') +3}" th:onclick="'goPage('+${articlePaging.get('nowPage')+3}+')'">1</a></li>
+                        <li th:class="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${articlePaging.get('nowPage')==articlePaging.get('totalPage')}?'':'goPage('+${articlePaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div th:replace="user/layout :: userRightInfo(blogUserInfo=${blogUserInfo},newestArticleList=${newestArticleList},articleCategoryList=${articleCategoryList},newestArticleCommentList=${newestArticleCommentList})"></div>
+
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+
+<script th:inline="javascript">
+    var type = [[${blogType}]];
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/user/{id}/category/{category}(id=${blogUserInfo.getId()},category=${blogCategory})}]]*/'';
+        var order = [[${blogOrderBy}]];
+        url += '?&type='+type+'&order='+order+'&page='+page;
+        window.location.href = url;
+    }
+    function chooseBlogType(obj) {
+        if($(obj).is(':checked')){
+            type = 1;
+        }else{
+            type = 0;
+        }
+        goPage(1)
+    }
+</script>
+
+</body>
+</html>

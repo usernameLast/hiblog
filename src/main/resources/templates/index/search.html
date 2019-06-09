@@ -1,0 +1,109 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+
+
+</style>
+<body>
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-index-content">
+        <div class="hb-index-content-center pull-left hb-index-search">
+
+            <div class="title">
+                <div class="checkbox pull-left">
+                    <a href="#" th:href="@{/search(keyword=${searchKeyword},searchType=0)}"  th:class="${searchType == 0?'active':''}"> 博客 </a>
+                    <a href="#" th:href="@{/search(keyword=${searchKeyword},searchType=1)}"  th:class="${searchType == 1?'active':''}"> 博主 </a>
+                </div>
+                <div class="pull-right">
+                    <form class="form-inline">
+                        <div class="input-group">
+                            <input type="hidden"name="searchType"  th:value="${searchType}">
+                            <input type="text" name="keyword" th:value="${searchKeyword}" class="form-control" placeholder="">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit">搜索</button>
+                             </span>
+                        </div>
+                    </form>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="content">
+
+                <div th:if="${!hasSearch || searchPaging.get('totalNum') == 0}">
+                    <div th:replace="layout :: noContent"></div>
+                </div>
+
+
+                <ul class="no-list-style" th:if="${hasSearch && searchPaging.get('totalNum') > 0}">
+                    <li th:if="${searchType == 0}" th:each="obj:${searchPaging.get('articleList')}">
+                        <h4>
+                            <a href="#" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getTitle()}">
+                                博客名称
+                            </a>
+                        </h4>
+                        <p>
+                            <a href="#" th:href="@{/user/article/{id}(id=${obj.getId()})}" th:text="${obj.getIntroduction()}">
+                                简介
+                            </a>
+                        </p>
+                    </li>
+
+                    <li th:if="${searchType == 1}" th:each="obj:${searchPaging.get('userList')}">
+                        <h4>
+                            <a href="#" th:href="@{/user/{id}(id=${obj.getId()})}" th:text="${obj.getNickname()}">
+                                昵称
+                            </a>
+                        </h4>
+                        <p>
+                            <a href="#" th:href="@{/user/{id}(id=${obj.getId()})}" th:text="${obj.getIntroduction()}">
+                                简介
+                            </a>
+                        </p>
+                    </li>
+
+                </ul>
+
+
+                <div class="text-center" th:if="${hasSearch && searchPaging.get('totalPage') > 1}">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" >
+                            <li th:class="${searchPaging.get('nowPage')==1}?'disabled' : ''"><a href="javascript:;" th:onclick="${searchPaging.get('nowPage')==1}?'':'goPage('+${searchPaging.get('nowPage')-1}+')'"><span aria-hidden="true">&laquo;</span></a></li>
+                            <li th:if="${searchPaging.get('nowPage')-3 >=1}" ><a href="javascript:;" th:text="${searchPaging.get('nowPage') -3}" th:onclick="'goPage('+${searchPaging.get('nowPage')-3}+')'">1</a></li>
+                            <li th:if="${searchPaging.get('nowPage')-2 >=1}" ><a href="javascript:;" th:text="${searchPaging.get('nowPage') -2}" th:onclick="'goPage('+${searchPaging.get('nowPage')-2}+')'">1</a></li>
+                            <li th:if="${searchPaging.get('nowPage')-1 >=1}" ><a href="javascript:;" th:text="${searchPaging.get('nowPage') -1}" th:onclick="'goPage('+${searchPaging.get('nowPage')-1}+')'">1</a></li>
+                            <li class="active"><a href="javascript:;" th:text="${searchPaging.get('nowPage')}" >1</a></li>
+                            <li th:if="${searchPaging.get('nowPage')+1 <=searchPaging.get('totalPage')}"><a href="javascript:;" th:text="${searchPaging.get('nowPage') +1}" th:onclick="'goPage('+${searchPaging.get('nowPage')+1}+')'">1</a></li>
+                            <li th:if="${searchPaging.get('nowPage')+2 <=searchPaging.get('totalPage')}"><a href="javascript:;" th:text="${searchPaging.get('nowPage') +2}" th:onclick="'goPage('+${searchPaging.get('nowPage')+2}+')'">1</a></li>
+                            <li th:if="${searchPaging.get('nowPage')+3 <=searchPaging.get('totalPage')}"><a href="javascript:;" th:text="${searchPaging.get('nowPage') +3}" th:onclick="'goPage('+${searchPaging.get('nowPage')+3}+')'">1</a></li>
+                            <li th:class="${searchPaging.get('nowPage')==searchPaging.get('totalPage')}?'disabled' : ''" ><a href="javascript:;" th:onclick="${searchPaging.get('nowPage')==searchPaging.get('totalPage')}?'':'goPage('+${searchPaging.get('nowPage')+1}+')'"><span aria-hidden="true">&raquo;</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+
+            </div>
+
+        </div>
+        <div class="hb-index-content-right pull-left">
+
+            <div th:replace="layout :: about"></div>
+
+        </div>
+
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+</body>
+<script th:inline="javascript">
+    // 调整地址
+    function goPage(page) {
+        var url = /*[[@{/search(searchType=${searchType},keyword=${searchKeyword})}]]*/'';
+        url += '&page='+page;
+        window.location.href = url;
+    }
+</script>
+</html>

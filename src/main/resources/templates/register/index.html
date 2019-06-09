@@ -1,0 +1,42 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: htmlhead" th:with="title='Hello'"></head>
+<style>
+    body{
+        background: #ffffff;
+        background-repeat:no-repeat;
+        background-size: cover;
+        color: #FFFFFF;
+    }
+</style>
+<body th:styleappend="'background-image: url('+ @{/images/login-bg.jpg}+')'">
+<div class="hb-index">
+    <div th:replace="layout :: navbar"></div>
+
+    <div class="hb-register">
+        <h3>注册新用户</h3>
+        <form action="#" th:action="@{/register/add}" method="post">
+            <div class="form-group">
+                <label class="control-label">账 号:</label>
+                <input type="text" class="form-control" th:value="${rv} ? ${rv.username} : ''" name="username" placeholder="请输入账号">
+            </div>
+            <div class="form-group">
+                <label class="control-label">昵 称:</label>
+                <input type="text" class="form-control" th:value="${rv} ? ${rv.nickname} : ''" name="nickname" placeholder="请输入昵称">
+            </div>
+            <div class="form-group">
+                <label class="control-label">密 码:</label>
+                <input type="password" class="form-control" th:value="${rv} ? ${rv.password} : ''" name="password" placeholder="请输入密码">
+            </div>
+            <div class="form-group">
+                <label class="control-label">确认密码:</label>
+                <input type="password" class="form-control" th:value="${rv} ? ${rv.password} : ''" name="comfirmPassword" placeholder="请输入确认密码">
+            </div>
+            <p th:class="${message} ? 'alert alert-danger' : ''" th:if="message" th:text="${message}"></p>
+            <button type="submit" class="btn btn-primary">注 册</button>
+        </form>
+    </div>
+
+    <div th:include="layout :: footer"></div>
+</div>
+</body>
+</html>
